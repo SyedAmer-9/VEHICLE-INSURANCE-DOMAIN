@@ -6,7 +6,7 @@ Project Introduction
 
 --------------------------------------------------------------------------------------------------------------
                                                Project Introduction 
-**Tools and Techniques Used in this project ->**
+**Tools and Techniques i used in this project ->**
 *MongoDB - for data storage
 *Robust pipeline - Training/Prediction
 *FastApi - For high performance prediction API ( acts as a waiter sits inside a docker which is stored on ECR)
@@ -55,7 +55,7 @@ version -> the version number important for tracking changes
 author and author_email -> simple metadata
 packages=find_packages() -> it tells setup.py what code to include in the package in our case find_packages() automatically finds all folders that have an __init__.py file in our case src and all its subfolders contain __init__.py so it includes all those code
 
-now about pyproject.toml(the modern way) ->It's the modern standard. It not only defines your package but also configures all your development tools
+now about pyproject.toml(the modern way) ->It's the modern standard. It not only defines your package but also configures all your development tools toml stands for (toms obvious minimal language)
 from file we can see  [tool.setuptools] -> section tells your build tool
 packages={find={}}->this line is the new,declarative wat to say find_packages()
 [tool.setuptools.dynamic] -> this is for settings that are dynamically loaded from other files
@@ -98,6 +98,11 @@ pyYAML -> a lib for reading and writing .yaml files
 The command pip install -e . is crucial for our project because it installs our src folder as a locally editable package within our virtual environment. The primary problem this solves is the ModuleNotFoundError that would otherwise happen when scripts outside src (like app.py) try to import code from inside it. Python doesn't automatically know to look in the src folder, but running this command using our pyproject.toml file fixes that. It creates a link in Python's main site-packages directory that points directly to our src folder, effectively teaching Python to treat src just like any other installed library, such as pandas or numpy. This makes our project's code importable from anywhere. The -e (or "editable") flag is the most important part, as it installs a link instead of a copy. This means any edits we make to our source code are immediately effective on the next run, with no re-installation required. This is the standard, clean way to make our project's modules available during development.
 
 when you type pip list it shows currently installed packages i.e. for me it showed just pip but after running pip install -r requirements.txt pip will install all the listed librariesp
+and when you type pip list all the libararies and their dependencies show up but here a point to notice is that in the list we can also see src show up this is due to -e . part instruction
+
+here comes the database part where i setup mongoDB organisation and then i create a project inside that project i create a cluster i used email to login into MongoDB atlas, the project name is vehicle_proj, now we create a cluster we use free plan as for now and then select mumbai server and create a cluster we get a username and password that are required to gain access to that cluster save that username and password somewhere in the notepad now go to network access and add ip address so that we can access it from anywhere i.e., 0.0.0.0/0 now we head back to project site and click on get connection string now we select python as the driver and Version as 3.12 and later as it is a stable version now copy the connection string and paste it inside your project folder now i create a folder called notebook which contains data.csv file of our project also now i create a file called monoDB_demo.ipynb this is for pushing dataset folder from local to mongoDB cloud inside mongoDB_demo file we import pandas and pymongo libraries we create a df of data.csv and use head() function to check first five rows of dataset, now df should be converted in to dict before we push it to mongoDB as mongoDB is no relational database so we should upload it into key-value pair we use to_dict(orient='records') function for it now our next step is to setup cloud database with DB_NAME = 'Proj1' and COLLECTION_NAME='Proj1-Data' CONNECTION_URL = "the url that you saved in notepad no i am not dumb enough to put it here in a public repository" now we use pymongo.MongoClient to create a client object which is used to connect to entire MongoDB server(cluster) and use that client object to connect to the data_base.I encountered a problem here where i used @ in password for database and struggled for 2 hours but finally debugged it yeah a simple mistake and now i pushed the data.csv to mongoDB cluster using collection.insert_manY(data), we can see the uploaded data in mongoDB atlas and see all the collection/documents.
+
+Now i move on to the next part i.e., Logging of the data so now go to src folder and open logger folder and open init.py 
 --------------------------------------------------------------------------------------------------------------
 
 
