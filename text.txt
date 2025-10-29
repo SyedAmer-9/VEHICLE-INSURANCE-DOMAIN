@@ -1,0 +1,6 @@
+
+cosmiclover2003_db_user
+CTufEwYpb1heyJfw
+
+mongodb+srv://cosmiclover2003_db_user:<db_password>@cluster0.iu54cli.mongodb.net/?appName=Cluster0
+
