@@ -137,6 +137,56 @@ the constructor method is the setup it immediately buils all the configuration o
 
 Now we run the data_ingstion pipeline during the execution i got an error because of not setting the MONGODB_URL as env variable which made the pipeline to raise exception so we fix this by adding the mongoDBURL as env to set a env that can be put forever we use .Zshrc for that we open Zsh using nano ~/.zshrc command and add the variable at the very bottom line
 ---------------------------------------------------------------------------------------------------------------
+           Data Validation,Data Transformation and Model Trainer
+
+DATA VALIDATION
+
+src/utils/main_utils.py
+In this workflow we start this by writing main_utils.py which is the collection of helper functions that we will use throughout the project this utils include imports of os module system module numpy,dill,yaml,pandas and custom exception and logging these methods include -> read_yaml_file,write_yaml_file,load_object,save_object,save_numpy_array_object_data,load_numpy_array_data -> Now each function has its own uses read_yaml_file is used to read Schema.yaml for Data validation and model.yaml for modelTrianer,write_yaml_file used in DataValidation component to save its report.yaml,load_object used in prediction pipeline to load the preprocessing.pkl/model.pkl to make live predicticioins by FastAPI m save_object will be used in Data_transormation compoennt to save the preprocessing.pkl and in model trainer to save model.pkl here we use dill instead of pickle This is a great choice because dill is more robust and can sertialize a wider range of Python objects that pickle might fail on,save_numpy_array_data  here np.save and np.load are much faster and more memory effiecient for saving and loading large numerical arrays than dill or pickle we will use this to create train_set and test_set and load_numpy_array_data will used to load them by model trainer.If you want to go into detailed explanation then read_yaml_file takes file_path as argument and returns a dictionary by opening the file_path in read_binary by using the with method it closes the file after loding and yaml.safe_load() is the main command from the PyYAML that readh the binary content from yaml_file parses it and safely converts it into Python Object and then converts that to dictoinary any Exception will be handled custom built Exception Handler.Write_yaml_file takes file_path as string,content as object and replace boolean which is set to False by default when set to True it will replace the delete the existing  yaml file at file_path with the new one os.path.dirname(file_path) this returns the name of the directory os.makedirs then create the directory with the dirname exist_ok=True is critical safety check it tells the function not to raise an error if the folder already exists
+yaml.dump(content, file) this is the main actions it takes the python content object and conversts to serialization and writing it into the file rest of the functions are easy to understand they are simple fucntions that do what their name tells about
+
+root/config/schema.yaml
+this file is a central data contract that i created for my entire pipeline its main job is to be used by data validation coomponent .you might be wondering how so heres a clear explanation during dara validation component this shcma file will be read using read_yaml_file utility method it will then perform two key check on the train.csv and test.csv files: 1) column and type check it will check the list under columns: to ensure that all expected columns like(gender,Age,etc)exist and that their data types match 2) data_drift check it will use the numerical_calumns and categorical_columns lists to check for data drift.i.e., for ex- it will check if the number of unique categories in Vehicle_Age has suddenly changed which would indicate a problem and this will also be used in Data Transformation component where  it will read this file to know which transformation strategy t oapply to which columns for ek - num_features will apply StandarScalar to these columns and mm_columns it will apply MinMaxScaler to this column and it will also be used in Data Ingestion component to drop the _id column after fetching data from MOngoDB 
+
+src/constants/init.py
+i did not make any edits in that file as all the constants were defined during the start of my project so here we use two constants DATA_VALIDATION_DIR_NAME which is a string and named data_validation which will be inside artifact and DATA_VALIDATION_REPORT_FILE_NAME : which is also a string called report.yaml
+
+src/entity/config_entity.py
+here we add configs for DataValidationConfig which are two paths for data_validation_dir which is for dir inside artifact with same timestamp as Dataingestion and validation_report_file_path a directory for data validations report file name(report.yaml)
+
+src/entity.artifact_entity.py
+this will contain a class of DataValidationArtifact with a boolean for validation status and a message for failure and a report file path
+
+src/component/data_validation.py
+this is the actual component of data_validation heree i define all the methods to validate the data and this involves importing json(for creating report) sys for exception and os for file creationg and then we import pandas and then custom exception and logging and then we import read_yaml_file from utils and we also import DataIngestionArtifact so that we get the paths for raw data files that are going to be validated ,we also import DatValidtionArtifact which is useful for creating artifacts of data_validation component which include status,message and file path of report we also import configuraiton for Data Validation and most importantly we import SCHEMA_FILE_PATH from constants which is the path for schema file of data we begin the class DataValidation with a constructor by creating data_ingestion_artifact ,validation_congif and schemas and then we create our first class method for verifying number of columns(count) in our data loaded from data_ingestion_artifact and column names in Schema file and then we create our next function is_column_exist which checks spellings and case for each column and adds it to list if they are not present in dataset note that it will compare column nmaes from schema file to dataset file and it will compare the numerical_columns and categorical_columns seperately and now we create a static method to read_data from the csv file that is provided by data_ingestion_artifact and now create a main method of running the all the above methods we jst defined initiate_data_validation in this method we create a empty string validation_error_msg which will be stored in report and data_validation_artifact we load the train and test data from data_ingestion_artifact and create a status boolean and check for validation_number_columns for train and test individually we then do the same for is_clumn_exist if any problem occurs it is stored in report and data_validation_artifact note that report.yaml is an artifact itself for validaiton component hence its path is also stored in data_validation_artifact thus we create the direcotry for report by using os dirname and makedir and store the validation_report with validation_status and message and then we return data_validation_artifact to training pipeline file
+
+src/pipeline/training_pipeline.py
+
+we import DataValidation component and DataValidationCOnfig and DataValidationArtifact
+we run the config part in constructor and then create the pipeline method for start_data_validation and call the component part which returns the artifact which will be stored by training_pipeline 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
