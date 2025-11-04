@@ -209,3 +209,5 @@ __marimo__/
 logs
 *.pkl
 artifact
+text1.txt
+notebook/mongoDB_demo.ipynb
