@@ -183,6 +183,24 @@ src/pipeline/training_pipeline.py
 initialise the Data_transformation configs and artifacts and create the pipeline method for data_transformation(start_data_transformation) which will take data_ingestion_artifact and data_validation_artifact as the arguements adn teturns the data_transformation_artifact,create the object of DataTransformation and then call the method initiate_data_transformation() after running the pipeline we see the folder data_transformation which will be inside artifact which will contain transformed(contains training and testing datasets) and transformed_object(contains preprocessor)
 
 
+                                                          MODEL TRAINER
+src/constants/__init__.py
+For model trainer we have 11 constants-dir name,trained model dir name,model ame,model trainer expected  score,model config file path,model_n_estimators,min_samples_split,min_samples_leaf,sample_split_max_depth,split_criterion,random_state
+
+src/entity/config_entity.py
+here we define all the model configurations that we used in constants and also join the direcotry paths and files
+
+src/entity/artifact_entity.py
+it produced two artifacts 1)trained models file path 2)metric artifact which is a instance of a class called ClassificationMetricArtifact that hols f1_score precision_score and recall score
+
+src/entity/estimator.py
+MyModel is a custom class that serializes ithe inference piple(Model+Transformation) and use them together to make a prediction on new raw data its constructor acts  as a box that holds two essential components i created in DataTransformation and ModelTrainer,self.preprocessing_object and self.trained_model_object  and then there is predict method that takes the dataframe and returns the prediction in the form of (0 and 1) before predicting it does all the transformation required on the data ,and then we Have TargetValueMapping class whose job is to act like a helper class to map the model's numeric output back to a hman readable string for my API.zip(mapping_response.values(), mapping_response.keys()) zips [0, 1] with ['yes', 'no']. dict(...) turns this into {1: 'yes', 0: 'no'},and then you can use this to look up to the string value - ex - mapping[0] will return 'yes'/Note that predict method returns list of 0 and 1 according to the data provided and this method helps in converting it back to yes or nos
+
+src/components/model_trainer.py
+the Model_trainer component component is where all the prvious work gets cashed in to create a final trained model.It loads the processed data,trains the model and budles the preprocessort and trained model into a single inference pipeline.It contains two methods 1)initiate_model_trainer - the GO method for this component it runs all the steps in the correct order which include loading data from data_transformation_artifact where we have train_arr.npy and test_arr.npy It then calls the second method 2)get_model_object_and_report helper function passing it the train and test arrays it returns two things back trained_odel bject and metric_artifact and then the preprocessor is loaded from DataTransformationArtifact it then checks quality of the performance of the model and checks whether its accuracy is greateer than expected accuracy constant from constant and raises an Exception if it is not more than the expectations.Now comes the gold standard method of MLOps where the preprocessingObject and trained_model is passed to MyModel class where they get turned into a single pipeline this is useful for predicting new data when we create a Flask application we can pass it the raw JSON data and it will handle the full preprocessing and prediction in one step. This component returns ModelTrainerArtifact which includes file paths for model.pkl and test metrics More about 2) method get_model_object_and_report it first Splits X and y using Numpy's SSlicing X(all columns but the last) and y(target:only the last column) and then it initializes the Model it creates RandomForestClassifier and pulls all the hyperparameters directly from model_trainer_config which were found during experiment.Now we train the model using model.fit and then evaluate it and then the model and the ClassificationMeetricArtifact backto the main initiate_model_trainer method.
+
+
+
 
 
 
