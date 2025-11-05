@@ -31,6 +31,20 @@
 #         print(e)
 
 from src.pipline.training_pipeline import TrainPipeline
+from dotenv import load_dotenv
+from src.exception import MyException
+from src.logger import logging
+import sys
 
-pipline=TrainPipeline()
-pipline.run_pipeline()
+load_dotenv()
+
+def main():
+    try:
+        pipline = TrainPipeline()
+        pipline.run_pipeline()
+    except Exception as e:
+        logging.error(f"{e}")
+        raise MyException(e, sys)
+
+if __name__ == "__main__":
+    main()

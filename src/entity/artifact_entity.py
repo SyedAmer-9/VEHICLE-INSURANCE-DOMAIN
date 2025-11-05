@@ -27,3 +27,15 @@ class ClassificationMetricArtifact:
 class ModelTrainerArtifact:
     trained_model_path:str
     metric_artifact:ClassificationMetricArtifact
+
+@dataclass
+class ModelEvaluationArtifact:
+    is_model_accepted:bool
+    changed_accuracy:float
+    s3_model_path:str
+    trained_model_path:str
+
+@dataclass
+class ModelPusherArtifact:
+    pushed_model_s3_uri: str
+    saved_model_path: str
