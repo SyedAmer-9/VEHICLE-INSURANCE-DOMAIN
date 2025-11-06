@@ -247,20 +247,42 @@ we add two config similar from Model Evluation ones 1) bucket_name and 2)s3_buck
 src/entity/artifact_entity.py(for Model Pusher)
 it has two artifacts i)local model path and ii)s3_model_uri
 
-src/componeny/model_pusher.py
-it is the Shipping Departmenr for the factory i created its only job is to take the final approved product model.pkl and ship it to the production warehouse(S3 bucket) in the constructor we use model_evaluation_artifact to decide whether to move forward in the code or not by using the is_model_accepeted and then it uses model_pusher ocnfig to initialise the shipping label or destination address(bucket_name and s3_model_key) and then it uses model_traniner_artifact to find the address of model_trainer i.e., model.pkl and then it uses proj_estimator for creating an instance of S3 aware estimator which has the save_model() method,There comes the initiate_model_pusher method that is the GO method for the above main methodit has the gatekeeper check to check the model_evaluation_artifact .is_model_accepted this prevents a bad rejected model from ever making it to production if accepeted it gets the local_model_path and uses proj_estimator to save the model to s# bucket and then it returns the artifact contained pushed_model_s3_uri and saved_model local path
+src/component/model_pusher.py
+it is the Shipping Departmenr for the factory i created its only job is to take the final approved product model.pkl and ship it to the production warehouse(S3 bucket) in the constructor we use model_evaluation_artifact to decide whether to move forward in the code or not by using the is_model_accepeted
 
-NOW we create .env file and use that in demo.py
+                           FASTAPI BUILD
 
-src/pipeline/training_pipeline
-initialise model_pusher configs and artifacts and then create a start_model_pusher method that runs the initiate_model_pusher from component part and returns the model_pusher_artifact to pipeline
+src/entity/config_entity.py
+we add two configs here S3_bucket name and S3_model_psuher_key
 
-Note that Model  Evaluation and Model Pusher do not save anything in local artifact folder
+src/pipeline/prediction_pipeline.py
+this is the brain of prediction server this is the code that my FASTAPI will import and use its sole purpose is to take the raw JSON from the user and run it through my entire saved preprocessing and model pipeline to give back the human readable prediction(yes or no).There are three classes in this file 1)VehiclePredictorConfig: this class does nothing its a struct its only jon is hold two strings S3 Bucket name and S3 model pusher key
+2)VehicleData: its job is to take the raw data form user and put it into a pandas Dataframe it has get_vehicle_data_as_dict() which formats data into a dictiondary that pandas can understand and get_vehicle_input_data_frame() which is the final step it calls the moethod above and wraps entire dictionary into DataFrame()
+3)VehicleDataClassifier : it is the head chef this is the only class that my app.py will ever talk to it manages entire prediction process from start to finish it has a constructor that runc once when my FastApI app starts it creates a instance of ProjEstimaator which is my S3 on demand loader it knows where the S3 model is it also creas my deocder ring self.translator = TargetValueMapping().reverse_mapping(), which builds the {1: 'yes', 0: 'no'} dictionary.to reverse the output to string format and then it returns the string
 
+root/app.py
 
+the last and final piece of the pipeline is to actually use it and this file is what makes this pipeline user-friendly Now we begin writing the file with required imports which include fastapi: the waiters in which  there is FastAPI the main class,Request handles incoming web request ,BackgroundTasks is cruicial tool i will use to fix my /train route
 
+uvicorn: the actual server that runs my FastAPI app
+src.constants : i import APP_HOST AND APP_PORT so we know what address to run the server on
+src.pipline.prediction_pipeline: i import my VehicleData the order form and VehicleDataClassifies(the headchef)
+and all the necessary components are imported like logging,exception ,TrainPipeline from (training_pipeline) se we can trigger a new training run
 
+Now we create app instance of FastAPI() and then we mount the CSS file using mount (which will be requeseted by browser when we run app) and then we add a HTML rendered using Jinja2Templates this tells the app to look for all HTML files in a filder names templates. and then we add middleware (CORS) which is like a bouncer for my API it sets security rules allow_roigin to anyone etc with this i can make request to this server from any domain
 
+Now i do the most important MLOps patters where i create a single global instance of VehicleDataClassifer where S3 connection happens this code runs ONCE when i start the server the __init__ of this class is smart: it doesn't download the S3 model. It just creates the ProjEstimator (the S3 loader) and the TargetValueMapping (the translator).This fixes your "Slow-Motion" bug. Instead of loading the model on every request, we create one classifier object that is shared by all users. The first user will trigger the model download, and all other users will get the fast, cached version.
+
+/train
+Now we create our first route @app.get("/train") when a user visits this page this function runs background_tasks.add_task(run_training_pipeline): This is the magic. It says: "Don't run the 5-minute run_training_pipeline function now. Just add it to a to-do list. which returns Response which rns immediately the user gets a Training started! message in their browser before the training has even begun its free to contnue serving prediction reqeusts wjile the trainng pipelien runs in the background Note that this also contains a method called run_training_pipeline which runs the run_pipeline() method in TrianPipeline()'s instance and train_route is the function that calls the above method never raise an exception in app always create a Response for avoiding server crash and keeping the application robust
+
+/ (the home page)
+@app.get('/ tells the fastAPI to run this functon when a user goes to the main URL and return templates.TemplateResponse(...) fonds my vehicledata.html and renderss it and passes in a context variable.My HTML can now display the message Ready to predict!
+
+@app.post('/')
+this  is the core of my storefront this route runs when user clicks the Submit button on my HTML form and then our await request.form() gets the submitted data from the user and then it is passed to VehicleData() class where it gets converted into df that MyModel is expecting for and then a prediction_string is generated which runs my entire prediction pipeline (which contains classifier and predict) which loads the model gets the prediction and targetValue<aping and one and resposnse is returned to server
+
+the main functions is defined using __name__ =="__main__" where we use the constant PORTS to connect to the server
 
 
 
