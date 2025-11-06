@@ -95,6 +95,7 @@ class TrainPipeline:
             model_evaluation_artifact = self.start_model_evaluation(data_ingestion_artifact=data_ingestion_artifact,model_trainer_artifact=model_trainer_artifact)
             model_pusher_artifact = self.start_model_pusher(model_evaluation_artifact,model_trainer_artifact)
            
+            logging.info("PIPELINE EXECUTION COMPLETED SUCCESSFULLY")
             
             
 

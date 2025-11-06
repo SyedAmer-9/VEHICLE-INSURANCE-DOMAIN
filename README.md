@@ -245,12 +245,17 @@ src/entity/config_entity.py(for Model Pusher)
 we add two config similar from Model Evluation ones 1) bucket_name and 2)s3_bucket_key_path
 
 src/entity/artifact_entity.py(for Model Pusher)
-it has two artifacts i)bucket_name and ii)s3_model_path
+it has two artifacts i)local model path and ii)s3_model_uri
 
 src/componeny/model_pusher.py
-it is the Shipping Departmenr for the factory i created its only job is to take the final approved product model.pkl and ship it to the production warehouse(S3 bucket) in the constructor we use model_evaluation_artifact to decide whether to move forward in the code or not by using the is_model_accepeted
+it is the Shipping Departmenr for the factory i created its only job is to take the final approved product model.pkl and ship it to the production warehouse(S3 bucket) in the constructor we use model_evaluation_artifact to decide whether to move forward in the code or not by using the is_model_accepeted and then it uses model_pusher ocnfig to initialise the shipping label or destination address(bucket_name and s3_model_key) and then it uses model_traniner_artifact to find the address of model_trainer i.e., model.pkl and then it uses proj_estimator for creating an instance of S3 aware estimator which has the save_model() method,There comes the initiate_model_pusher method that is the GO method for the above main methodit has the gatekeeper check to check the model_evaluation_artifact .is_model_accepted this prevents a bad rejected model from ever making it to production if accepeted it gets the local_model_path and uses proj_estimator to save the model to s# bucket and then it returns the artifact contained pushed_model_s3_uri and saved_model local path
 
+NOW we create .env file and use that in demo.py
 
+src/pipeline/training_pipeline
+initialise model_pusher configs and artifacts and then create a start_model_pusher method that runs the initiate_model_pusher from component part and returns the model_pusher_artifact to pipeline
+
+Note that Model  Evaluation and Model Pusher do not save anything in local artifact folder
 
 
 

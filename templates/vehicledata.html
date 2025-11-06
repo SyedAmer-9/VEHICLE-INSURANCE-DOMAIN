@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Insurance Prediction</title>
+    <!-- 
+      This path assumes your 'style.css' is inside a 'css' folder 
+      within your 'static' folder.
+    -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Vehicle Insurance Prediction</h1>
+        <p>Enter the customer's details to predict if they will be interested in a new policy.</p>
+
+        
+        <form method="post" action="/">
+            
+            <!-- Gender -->
+            <label for="Gender">Gender:</label>
+            <select id="Gender" name="Gender" required>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+
+            <!-- Age -->
+            <label for="Age">Age:</label>
+            <input type="number" id="Age" name="Age" placeholder="e.g., 45" required>
+
+            <!-- Driving License -->
+            <label for="Driving_License">Driving License:</label>
+            <select id="Driving_License" name="Driving_License" required>
+                <option value="1">Yes (Has License)</option>
+                <option value="0">No (No License)</option>
+            </select>
+
+            <!-- Region Code -->
+            <label for="Region_Code">Region Code:</label>
+            <input type="number" step="1" id="Region_Code" name="Region_Code" placeholder="e.g., 28" required>
+
+            <!-- Previously Insured -->
+            <label for="Previously_Insured">Previously Insured:</label>
+            <select id="Previously_Insured" name="Previously_Insured" required>
+                <option value="1">Yes (Already Insured)</option>
+                <option value="0">No (Not Insured)</option>
+            </select>
+
+            <!-- Vehicle Age -->
+            <label for="Vehicle_Age">Vehicle Age:</label>
+            <select id="Vehicle_Age" name="Vehicle_Age" required>
+                <option value="< 1 Year">&lt; 1 Year</option>
+                <option value="1-2 Year">1-2 Years</option>
+                <option value="> 2 Years">&gt; 2 Years</option>
+            </select>
+
+            <!-- Vehicle Damage -->
+            <label for="Vehicle_Damage">Vehicle Damage:</label>
+            <select id="Vehicle_Damage" name="Vehicle_Damage" required>
+                <option value="Yes">Yes (Has Damage)</option>
+                <option value="No">No (No Damage)</option>
+            </select>
+
+            <!-- Annual Premium -->
+            <label for="Annual_Premium">Annual Premium (in $):</label>
+            <input type="number" step="0.01" id="Annual_Premium" name="Annual_Premium" placeholder="e.g., 40454.0" required>
+
+            <!-- Policy Sales Channel -->
+            <label for="Policy_Sales_Channel">Policy Sales Channel:</label>
+            <input type="number" step="1" id="Policy_Sales_Channel" name="Policy_Sales_Channel" placeholder="e.g., 152" required>
+
+            <!-- Vintage -->
+            <label for="Vintage">Vintage (Days as customer):</label>
+            <input type="number" id="Vintage" name="Vintage" placeholder="e.g., 256" required>
+
+            <button type="submit" class="predict-button">Predict</button>
+        </form>
+
+        <!-- 
+          This block displays the 'context' variable that
+          your app.py sends back.
+        -->
+        {% if context %}
+            <div class="result">
+                <h2>{{ context }}</h2>
+            </div>
+        {% endif %}
+        
+        <!-- Train Button Form -->
+        <form method="get" action="/train" class="train-form">
+            <button type="submit" class="train-button">Trigger New Training Pipeline</button>
+        </form>
+
+    </div>
+</body>
+</html>

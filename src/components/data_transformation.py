@@ -130,16 +130,18 @@ class DataTransformation:
             input_feature_test_arr = preprocessor.transform(input_feature_test_df)
             logging.info("Transformation done end to end to train-test df.")
 
-            logging.info("Applying SMOTEEN for handing imbalanced dataseton Training data.")
-            smt = SMOTEENN(sampling_strategy='minority')
-            input_feature_train_final,target_feature_train_final = smt.fit_resample(
-                input_feature_train_arr,target_feature_train_df
-            )
-            logging.info("SMOOTEEN applied to train df")
+            # logging.info("Applying SMOTEEN for handing imbalanced dataseton Training data.")
+            # smt = SMOTEENN(sampling_strategy='minority')
+            # input_feature_train_final,target_feature_train_final = smt.fit_resample(
+            #     input_feature_train_arr,target_feature_train_df
+            # )
+            # logging.info("SMOOTEEN applied to train df")
 
-            train_arr = np.c_[input_feature_train_final,np.array(target_feature_train_final)]
-            test_arr = np.c_[input_feature_test_arr,np.array(target_feature_test_df)]
+            # train_arr = np.c_[input_feature_train_final,np.array(target_feature_train_final)]
+            # test_arr = np.c_[input_feature_test_arr,np.array(target_feature_test_df)]
 
+            train_arr = np.c_[input_feature_train_arr, np.array(target_feature_train_df)] # Use the original arrays
+            test_arr = np.c_[input_feature_test_arr, np.array(target_feature_test_df)]
             logging.info("Feature-target concatenation done for train-test df.")
 
             save_object(self.data_transformation_config.transformed_object_file_path,preprocessor)

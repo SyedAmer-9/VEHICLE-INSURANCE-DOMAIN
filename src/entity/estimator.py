@@ -30,6 +30,7 @@ class MyModel:
         self._schema_config = read_yaml_file(file_path=SCHEMA_FILE_PATH)
     def _map_gender_column(self, df):
         logging.info("Mapping 'Gender' column...")
+        df['Gender'] = df['Gender'].fillna('Female')
         df['Gender'] = df['Gender'].map({'Female':0,'Male':1}).astype(int)
         return df
     
@@ -57,7 +58,7 @@ class MyModel:
         expected_cols = ["Vehicle_Age_lt_1_Year", "Vehicle_Age_gt_2_Years", "Vehicle_Damage_Yes"]
         for col in expected_cols:
             if col in df.columns:
-                df[col] = df[col].astype('int')
+                df[col] = df[col].fillna(0).astype('int')
             else:
                 logging.info(f"Creating missing dummy column: {col}")
                 df[col] = 0 
@@ -65,7 +66,8 @@ class MyModel:
     def predict(self,dataframe:pd.DataFrame)-> DataFrame:
         try:
             logging.info("Starting prediction process")
-
+            dataframe = dataframe.copy()
+            
             dataframe = self._map_gender_column(dataframe)
             dataframe = self._drop_id_column(dataframe)
             dataframe = self._create_dummy_columns(dataframe)
