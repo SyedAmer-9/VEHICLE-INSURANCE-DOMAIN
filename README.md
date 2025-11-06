@@ -285,14 +285,64 @@ this  is the core of my storefront this route runs when user clicks the Submit b
 the main functions is defined using __name__ =="__main__" where we use the constant PORTS to connect to the server
 
 
+                            CI/CD
 
+i have run the app successfully in my local machine but to make it  useful and scalable for everyome in the world i upload my code to AWS virtual computer(EC2) but this computer is empty so i need to install python,libraries,os etc this is a tedious task so we use DOcker which is a containerization file that has everything that is needed to run the app it has its own OS python,libraries etc , this solves Works on my Machine problem too .To create this container we need a Dockerffilewic is a plai texe ththater the stp by stp instrucitons on how to build my shipping container.Then we build he fiile using docker build method , and we store it in ECR first and then we run docker push to upload image to ECR and then we log into bllank E2 seerverandinstall Docker and pull the Image from ECR warehouse to EC2
 
+dockerignore : the list of ffile wihch are not necessary in ann container that ccan be logs,artifacts etc
 
+GITHIB ACTIONS
 
+useful for building CI/CD 
+ob is to run CI/CD pipelines:
+CI (Continuous Integration): "Is this new code safe?"
+CD (Continuous Deployment): "If it's safe, put it into production."
 
+Instead of me manually running all these commands...
+python demo.py (to train)
+docker build . (to build your app)
+docker push aws-ecr-url/... (to upload to ECR)
+ssh ec2-user@... (to log into your server)
+docker pull ... && docker run ... (to deploy)
 
+i can create a GitHub Action (an instruction manual) that tells the "robot" to do all five of these steps automatically every time you git push to your main branvh
 
+.github foldeer is thebrain for my robott its a special fodler that Giithu matiically looks for inhe root of my project
 
+now i write out aws.yaml in workflow folder which is useful for 
+This file is the instruction manual for your CI/CD robot (GitHub Actions). Its purpose is to completely automate the process of taking your new code from your laptop and deploying it to your live production server on AWS.
+
+Every time you git push your code to the main branch, this workflow will automatically:
+Build your FastAPI application into a Docker "shipping container" (an image).
+Push that container to your private warehouse in the cloud (AWS ECR).
+Log in to your EC2 server and tell it to download and run that new container, instantly updating your live application.
+
+Here is what each section of your file is doing:
+on: push: branches: [ "main" ] (The "Trigger")
+This is the "On" switch for the robot.
+It tells GitHub to run this entire workflow only when you git push new code to your main branch. Pushing to other branches (like a dev branch) will not trigger it.
+jobs: (The "Task List")
+This file defines two separate jobs that must be done:
+build-and-push (The "Packer")
+deploy (The "Delivery Driver")
+Job 1: build-and-push (The CI Part)
+name: Build and Push to ECR: A human-readable name for this job.
+runs-on: ubuntu-latest: This job will run on a fresh, temporary Linux computer provided by GitHub, not on your EC2 server.
+steps::
+actions/checkout@v3: This checks out (downloads) a copy of your project's code onto the GitHub computer.
+aws-actions/configure-aws-credentials@v1: This securely logs into AWS. It uses the secrets you stored in your GitHub repository settings (like secrets.AWS_ACCESS_KEY_ID) so you don't have to type your passwords in the file.
+aws-actions/amazon-ecr-login@v1: This is a special helper that logs the Docker tool into the AWS container registry (ECR).
+docker build ...: This is the command that reads your Dockerfile and builds your FastAPI app into a Docker image.
+docker push ...: This command uploads your newly built image to your ECR "warehouse."
+Job 2: deploy (The CD Part)
+name: Deploy to EC2: The name for this second job.
+needs: build-and-push: This is critical. It means "Do not even start this job until the build-and-push job has finished successfully." This ensures you never try to deploy a broken image.
+runs-on: ubuntu-latest: This job also runs on a fresh GitHub computer. It acts as the "remote control."
+steps::
+appleboy/ssh-action@v1.0.3: This is the "remote control" step. It uses the secrets you provided (your EC2's IP address, username, and the .pem private key) to securely SSH into your server.
+script: | ...: These are the commands that the "remote control" tells your EC2 server to run, in order:
+cd /home/ec2-user/app: "Go to the folder where our app lives."
+bash deploy.sh: "Run the deployment script." This script (which we wrote earlier) is what actually stops the old container, pulls the new image from ECR, and runs it.
 
 
 

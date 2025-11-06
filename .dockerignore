@@ -1,0 +1,13 @@
+artifact
+mlops
+.env
+.gitignoore
+logs
+template.py
+demo.py
+README.md
+LICENSE
+notebook
+text1.text1
+src.egg-info
+.github

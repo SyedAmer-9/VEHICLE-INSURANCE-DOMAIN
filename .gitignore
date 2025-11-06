@@ -211,3 +211,5 @@ logs
 artifact
 text1.txt
 notebook/mongoDB_demo.ipynb
+notebook
+mlops
