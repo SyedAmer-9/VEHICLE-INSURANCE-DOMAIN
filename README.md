@@ -344,7 +344,12 @@ script: | ...: These are the commands that the "remote control" tells your EC2 s
 cd /home/ec2-user/app: "Go to the folder where our app lives."
 bash deploy.sh: "Run the deployment script." This script (which we wrote earlier) is what actually stops the old container, pulls the new image from ECR, and runs it.
 
-
+This means:
+my Docker image was built successfully.
+It was pushed to my AWS ECR warehouse.
+my GitHub Action successfully SSH'd into my EC2 server.
+It ran my deploy.sh script, which pulled that new image and started my FastAPI container.
+my "storefront" is now LIVE.
 
 
 
