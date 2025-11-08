@@ -10,6 +10,8 @@ from fastapi.templating import Jinja2Templates
 from uvicorn import run as app_run
 from typing import Optional
 
+from prometheus_fastapi_instrumentator import Instrumentator
+
 from src.constants import APP_HOST,APP_PORT
 from src.pipline.prediction_pipeline import VehicleData,VehicleDataClassifier
 from src.pipline.training_pipeline import TrainPipeline
@@ -17,6 +19,8 @@ from src.exception import MyException
 from src.logger import logging
 
 app= FastAPI()
+
+Instrumentator().instrument(app).expose(app)
 
 app.mount("/static",StaticFiles(directory="static"),name="static")
 templates= Jinja2Templates(directory='templates')
